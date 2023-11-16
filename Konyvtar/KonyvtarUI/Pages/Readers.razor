@@ -1,0 +1,64 @@
+﻿@page "/readers"
+@inject HttpClient Http
+
+<h1>Olvasók listája</h1>
+
+@if (readers == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Olvasószám</th>
+                <th>Olvasó neve</th>
+                <th>Lakcím</th>
+                <th>Születési dátum</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var reader in readers)
+            {
+                <tr>
+                    <td>@reader.ReaderNumber</td>
+                    <td>@reader.Name</td>
+                    <td>@reader.Address</td>
+                    <td>@reader.BirthDate.ToShortDateString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Reader[] readers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, "data/readers.json");
+        var response = await Http.SendAsync(request);
+
+        if (response.IsSuccessStatusCode)
+        {
+            readers = await response.Content.ReadFromJsonAsync<Reader[]>();
+        }
+        else
+        {
+            // Kezeljük a hibát, például logolással vagy egyéb kezeléssel
+            // Fontos: itt a kód csak demonstrációs célt szolgál, a valóságban az alkalmazásnak
+            // részletesebb hibakezelést kell tartalmaznia.
+            Console.WriteLine($"Hiba a kérés során. Státusz kód: {response.StatusCode}");
+        }
+    }
+
+    public class Reader
+    {
+        public int Id { get; set; }
+        public string ReaderNumber { get; set; }
+        public string Name { get; set; }
+        public string Address { get; set; }
+        public DateTime BirthDate { get; set; }
+    }
+}

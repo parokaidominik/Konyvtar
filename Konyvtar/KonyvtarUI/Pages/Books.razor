@@ -1,0 +1,124 @@
+﻿@page "/books"
+@inject HttpClient Http
+@using System.Net.Http.Json
+
+<h1>Könyvek listája</h1>
+
+@if (books == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Leltári szám</th>
+                <th>Cím</th>
+                <th>Szerző</th>
+                <th>Kiadó</th>
+                <th>Kiadás éve</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in books)
+            {
+                <tr>
+                    <td>@book.InventoryNumber</td>
+                    <td>@book.Title</td>
+                    <td>@book.Author</td>
+                    <td>@book.Publisher</td>
+                    <td>@book.YearOfPublication</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button class="btn btn-primary" @onclick="ShowAddBookDialog">Új könyv hozzáadása</button>
+}
+
+@if (showAddBookDialog)
+{
+    <div class="modal" tabindex="-1" style="display:block; background: rgba(0,0,0,0.5); position: fixed; top: 0; bottom: 0; left: 0; right: 0;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Új könyv hozzáadása</h5>
+                    <button type="button" class="btn-close" @onclick="CloseAddBookDialog"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Új könyv űrlap -->
+                    <form>
+                        <div class="mb-3">
+                            <label for="inventoryNumber" class="form-label">Leltári szám</label>
+                            <input type="text" class="form-control" id="inventoryNumber" @bind="newBook.InventoryNumber">
+                        </div>
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Cím</label>
+                            <input type="text" class="form-control" id="title" @bind="newBook.Title">
+                        </div>
+                        <div class="mb-3">
+                            <label for="author" class="form-label">Szerző</label>
+                            <input type="text" class="form-control" id="author" @bind="newBook.Author">
+                        </div>
+                        <div class="mb-3">
+                            <label for="publisher" class="form-label">Kiadó</label>
+                            <input type="text" class="form-control" id="publisher" @bind="newBook.Publisher">
+                        </div>
+                        <div class="mb-3">
+                            <label for="yearOfPublication" class="form-label">Kiadás éve</label>
+                            <input type="number" class="form-control" id="yearOfPublication" @bind="newBook.YearOfPublication">
+                        </div>
+                        <button type="button" class="btn btn-primary" @onclick="AddBook">Hozzáadás</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private Book[] books;
+    private bool showAddBookDialog = false;
+    private Book newBook = new Book();
+
+    protected override async Task OnInitializedAsync()
+    {
+        books = await Http.GetFromJsonAsync<Book[]>("data/books.json");
+    }
+
+    private void ShowAddBookDialog()
+    {
+        showAddBookDialog = true;
+    }
+
+    private void CloseAddBookDialog()
+    {
+        showAddBookDialog = false;
+    }
+
+    private void AddBook()
+    {
+        // Ebben a példában csak kiírjuk az új könyv adatait a konzolra
+        Console.WriteLine($"Új könyv hozzáadva: {newBook.InventoryNumber}, {newBook.Title}, {newBook.Author}, {newBook.Publisher}, {newBook.YearOfPublication}");
+
+        // TODO: Itt hozzáadhatod az új könyvet az adatbázishoz vagy frissítheted a listát.
+        // A valóságban itt lehet egy HTTP POST kérés, amely az új könyvet elküldi a szervernek stb.
+
+        // Bezárjuk az űrlapot
+        CloseAddBookDialog();
+
+        // Frissítjük a könyvek listáját (ezt a valóságban egy frissített API hívással lehet megtenni)
+        OnInitializedAsync();
+    }
+
+    public class Book
+    {
+        public int Id { get; set; }
+        public string InventoryNumber { get; set; }
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public string Publisher { get; set; }
+        public int YearOfPublication { get; set; }
+    }
+}

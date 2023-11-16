@@ -1,0 +1,37 @@
+﻿[
+  {
+    "Id": 1,
+    "ReaderNumber": "R001",
+    "Name": "Anna Kovács",
+    "Address": "Budapest, Kossuth utca 12.",
+    "BirthDate": "1990-05-15"
+  },
+  {
+    "Id": 2,
+    "ReaderNumber": "R002",
+    "Name": "Gábor Nagy",
+    "Address": "Debrecen, Péterfy utca 8.",
+    "BirthDate": "1985-09-22"
+  },
+  {
+    "Id": 3,
+    "ReaderNumber": "R003",
+    "Name": "Zsuzsa Tóth",
+    "Address": "Szeged, Széchenyi tér 5.",
+    "BirthDate": "1995-03-10"
+  },
+  {
+    "Id": 4,
+    "ReaderNumber": "R004",
+    "Name": "Ferenc Kovács",
+    "Address": "Pécs, Király utca 20.",
+    "BirthDate": "1980-11-28"
+  },
+  {
+    "Id": 5,
+    "ReaderNumber": "R005",
+    "Name": "Éva Szabó",
+    "Address": "Szombathely, Bajnai út 16.",
+    "BirthDate": "1992-07-03"
+  }
+]

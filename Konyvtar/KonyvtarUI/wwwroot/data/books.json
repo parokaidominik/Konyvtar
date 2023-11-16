@@ -1,0 +1,42 @@
+﻿[
+  {
+    "Id": 1,
+    "InventoryNumber": "K001",
+    "Title": "Az Első Könyv",
+    "Author": "John Doe",
+    "Publisher": "Kiadó1",
+    "YearOfPublication": 2005
+  },
+  {
+    "Id": 2,
+    "InventoryNumber": "K002",
+    "Title": "A Második Könyv",
+    "Author": "Jane Smith",
+    "Publisher": "Kiadó2",
+    "YearOfPublication": 2010
+  },
+  {
+    "Id": 3,
+    "InventoryNumber": "K003",
+    "Title": "A Harmadik Könyv",
+    "Author": "Jack Johnson",
+    "Publisher": "Kiadó3",
+    "YearOfPublication": 2018
+  },
+  {
+    "Id": 4,
+    "InventoryNumber": "K004",
+    "Title": "A Negyedik Könyv",
+    "Author": "Jill Jackson",
+    "Publisher": "Kiadó4",
+    "YearOfPublication": 1995
+  },
+  {
+    "Id": 5,
+    "InventoryNumber": "K005",
+    "Title": "Az Ötödik Könyv",
+    "Author": "Joe Brown",
+    "Publisher": "Kiadó5",
+    "YearOfPublication": 2002
+  }
+]
