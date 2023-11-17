@@ -1,0 +1,62 @@
+﻿<div class="modal" tabindex="-1" style="display: @modalDisplay">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Olvasó hozzáadása</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="CloseModal"></button>
+            </div>
+            <div class="modal-body">
+                <form @onsubmit="AddReader">
+                    <div>
+                        <label>Olvasó neve:</label>
+                        <input type="text" @bind="newReader.Name" required />
+                    </div>
+                    <div>
+                        <label>Lakcím:</label>
+                        <input type="text" @bind="newReader.Address" required />
+                    </div>
+                    <div>
+                        <label>Születési dátum:</label>
+                        <input type="date" @bind="newReader.BirthDate" required />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Hozzáadás</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="CloseModal">Bezárás</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback OnAddReader { get; set; }
+
+    private Reader newReader = new Reader();
+
+    private string modalDisplay = "none";
+
+    private void ShowModal()
+    {
+        modalDisplay = "block";
+    }
+
+    private void CloseModal()
+    {
+        modalDisplay = "none";
+    }
+
+    private async Task AddReader()
+    {
+        await OnAddReader.InvokeAsync(newReader);
+        CloseModal();
+    }
+
+    public class Reader
+    {
+        public string Name { get; set; }
+        public string Address { get; set; }
+        public DateTime BirthDate { get; set; }
+    }
+}

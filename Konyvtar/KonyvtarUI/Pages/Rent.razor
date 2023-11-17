@@ -1,0 +1,85 @@
+﻿@page "/rent"
+@inject HttpClient Http
+@inject Services.BooksService BooksService
+@inject Services.ReadersService ReadersService
+
+<h1>Kölcsönzés</h1>
+
+@if (errorMessage != null)
+{
+    <p style="color: red;">@errorMessage</p>
+}
+
+<form>
+    <div class="mb-3">
+        <label for="readerNumber" class="form-label">Olvasószám</label>
+        <input type="text" class="form-control" id="readerNumber" @bind="rental.ReaderNumber">
+    </div>
+    <div class="mb-3">
+        <label for="inventoryNumber" class="form-label">Könyv leltári száma</label>
+        <input type="text" class="form-control" id="inventoryNumber" @bind="rental.InventoryNumber">
+    </div>
+    <div class="mb-3">
+        <label for="rentalDate" class="form-label">Kölcsönzés ideje</label>
+        <input type="datetime-local" class="form-control" id="rentalDate" @bind="rental.RentalDate">
+    </div>
+    <div class="mb-3">
+        <label for="returnDeadline" class="form-label">Visszahozási határidő</label>
+        <input type="datetime-local" class="form-control" id="returnDeadline" @bind="rental.ReturnDeadline">
+    </div>
+
+    <button type="button" class="btn btn-primary" @onclick="SubmitRental">Kölcsönzés mentése</button>
+</form>
+
+@code {
+    private RentalInfo rental = new RentalInfo();
+    private string errorMessage;
+
+    private async Task SubmitRental()
+    {
+
+        // Ellenőrzés, hogy az adatbázisban létezik-e a leltári szám
+        if (string.IsNullOrEmpty(rental.InventoryNumber) || !await BooksService.IsInventoryNumberExistsAsync(rental.InventoryNumber))
+        {
+            errorMessage = "Nincs ilyen leltári szám az adatbázisban.";
+            return;
+        }
+
+        // Ellenőrzés, hogy az adatbázisban létezik-e az olvasószám
+        if (string.IsNullOrEmpty(rental.ReaderNumber) || !await ReadersService.IsReaderNumberExistsAsync(rental.ReaderNumber))
+        {
+            errorMessage = "Nincs ilyen olvasószám az adatbázisban.";
+            return;
+        }
+
+
+        // Validáció: Kölcsönzés ideje nem lehet a jelenlegi napnál korábbi
+        if (rental.RentalDate < DateTimeOffset.Now)
+        {
+            errorMessage = "A kölcsönzés ideje nem lehet a jelenlegi időpontnál korábbi.";
+            return;
+        }
+
+        // Validáció: Visszahozási határidőnek később kell lennie, mint a kölcsönzés ideje
+        if (rental.ReturnDeadline <= rental.RentalDate)
+        {
+            errorMessage = "A visszahozási határidőnek később kell lennie, mint a kölcsönzés ideje.";
+            return;
+        }
+
+        // TODO: Itt további lépéseket tehetsz meg, például elküldheted az adatokat a szervernek vagy az adatbázisnak.
+
+        // Tisztítjuk az üzenetet, ha minden rendben van
+        errorMessage = null;
+
+        // Esetlegesen frissítheted az űrlapot vagy további műveleteket végezhetsz.
+    }
+
+    public class RentalInfo
+    {
+        public string ReaderNumber { get; set; }
+        public string InventoryNumber { get; set; }
+        public DateTimeOffset RentalDate { get; set; } = DateTimeOffset.Now;
+        public DateTimeOffset ReturnDeadline { get; set; } = DateTimeOffset.Now.AddDays(1); // Példa: A visszahozási határidő azonnal az egy nappal későbbi dátum
+    }
+}

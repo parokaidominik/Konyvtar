@@ -1,5 +1,6 @@
 ﻿@page "/readers"
 @inject HttpClient Http
+@using System.Net.Http.Json
 
 <h1>Olvasók listája</h1>
 
@@ -30,12 +31,61 @@ else
             }
         </tbody>
     </table>
+
+    <button class="btn btn-primary" @onclick="ShowAddReaderDialog">Új olvasó hozzáadása</button>
+}
+
+@if (showAddReaderDialog)
+{
+    <div class="modal" tabindex="-1" style="display:block; background: rgba(0,0,0,0.5); position: fixed; top: 0; bottom: 0; left: 0; right: 0;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Új könyv hozzáadása</h5>
+                    <button type="button" class="btn-close" @onclick="CloseAddReaderDialog"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Új olvasó űrlap -->
+                    <form @onsubmit="AddReader">
+                        <div class="mb-3">
+                            <!-- Az olvasószám (Id) általában az adatbázis generálja, nem szükséges felhasználó által kitölteni -->
+                            <!-- Amennyiben az Id-t az űrlapon keresztül állítod be, ügyelj arra, hogy egyedi legyen minden olvasóhoz -->
+                            <!--<label for="readerId" class="form-label">Olvasószám</label>-->
+                            <!--<input type="text" class="form-control" id="readerId" @bind="newReader.Id">-->
+                        </div>
+                        <div class="mb-3">
+                            <label for="readerName" class="form-label">Olvasó neve</label>
+                            <input type="text" class="form-control" id="readerName" @bind="newReader.Name" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="readerAddress" class="form-label">Lakcím</label>
+                            <input type="text" class="form-control" id="readerAddress" @bind="newReader.Address" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="readerBirthDate" class="form-label">Születési dátum</label>
+                            <input type="date" class="form-control" id="readerBirthDate" @bind="newReader.BirthDate" required />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Hozzáadás</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 
 @code {
     private Reader[] readers;
+    private bool showAddReaderDialog = false;
+    private Reader newReader = new Reader { BirthDate = new DateTime(1900, 1, 1) };
+    private string errorMessage;
 
     protected override async Task OnInitializedAsync()
+    {
+        await LoadReadersAsync();
+    }
+
+    private async Task LoadReadersAsync()
     {
         var request = new HttpRequestMessage(HttpMethod.Get, "data/readers.json");
         var response = await Http.SendAsync(request);
@@ -46,11 +96,70 @@ else
         }
         else
         {
-            // Kezeljük a hibát, például logolással vagy egyéb kezeléssel
-            // Fontos: itt a kód csak demonstrációs célt szolgál, a valóságban az alkalmazásnak
-            // részletesebb hibakezelést kell tartalmaznia.
             Console.WriteLine($"Hiba a kérés során. Státusz kód: {response.StatusCode}");
         }
+    }
+
+    private void ShowAddReaderDialog() => showAddReaderDialog = true;
+
+    private void CloseAddReaderDialog()
+    {
+        showAddReaderDialog = false;
+        // Új olvasó létrehozása a következő hozzáadáshoz
+        newReader = new Reader { BirthDate = new DateTime(1900, 1, 1) };
+        errorMessage = null;
+    }
+
+    private async Task AddReader()
+    {
+        try
+        {
+            // Validáció
+            if (newReader.BirthDate.Year < 1900)
+            {
+                errorMessage = "Ha ennyire idős vagy, akkor te magad vagy egy könyv.";
+                return;
+            }
+
+            // Az új olvasó számának generálása
+            newReader.Id = GetNextReaderId();
+            newReader.ReaderNumber = GetNextReaderNumber();
+
+            // Hozzáadás a listához
+            var updatedReadersList = new List<Reader>(readers ?? Array.Empty<Reader>());
+            updatedReadersList.Add(newReader);
+            readers = updatedReadersList.ToArray();
+
+            // Adatok mentése
+            var response = await Http.PostAsJsonAsync("data/readers.json", readers);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Hiba az adatok mentésekor. Státusz kód: {response.StatusCode}");
+            }
+
+            // Új olvasó létrehozása a következő hozzáadáshoz
+            newReader = new Reader();
+            errorMessage = null;
+            CloseAddReaderDialog();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Hiba a feldolgozás során: {ex.Message}");
+        }
+    }
+
+    private int GetNextReaderId()
+    {
+        // Az új olvasó számának generálása
+        int maxId = readers?.Max(r => r.Id) ?? 0;
+        return maxId + 1;
+    }
+    private string GetNextReaderNumber()
+    {
+        // Az új olvasó számának generálása
+        int maxNumber = readers?.Max(r => int.Parse(r.ReaderNumber.Substring(1))) ?? 0;
+        return $"R{maxNumber + 1:D3}";
     }
 
     public class Reader

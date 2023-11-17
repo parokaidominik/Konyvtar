@@ -1,6 +1,10 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\Konyvtar",
+    "\\Konyvtar\\KonyvtarUI",
+    "\\Konyvtar\\KonyvtarUI\\Pages"
   ],
+  "SelectedNode": "\\Konyvtar\\KonyvtarUI\\Pages\\Index.razor",
   "PreviewInSolutionExplorer": false
 }
